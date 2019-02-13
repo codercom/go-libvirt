@@ -1205,6 +1205,14 @@ type DomainDelIothreadArgs struct {
 	Flags DomainModificationImpact
 }
 
+// DomainSetIothreadParamsArgs is libvirt's remote_domain_set_iothread_params_args
+type DomainSetIothreadParamsArgs struct {
+	Dom Domain
+	IothreadID uint32
+	Params []TypedParam
+	Flags uint32
+}
+
 // DomainGetSecurityLabelArgs is libvirt's remote_domain_get_security_label_args
 type DomainGetSecurityLabelArgs struct {
 	Dom Domain
@@ -2996,7 +3004,7 @@ type StorageVolUploadArgs struct {
 	Vol StorageVol
 	Offset uint64
 	Length uint64
-	Flags StorageVolUploadFlags
+	Flags uint32
 }
 
 // StorageVolDownloadArgs is libvirt's remote_storage_vol_download_args
@@ -3004,7 +3012,7 @@ type StorageVolDownloadArgs struct {
 	Vol StorageVol
 	Offset uint64
 	Length uint64
-	Flags StorageVolDownloadFlags
+	Flags uint32
 }
 
 // DomainGetStateArgs is libvirt's remote_domain_get_state_args
@@ -10159,7 +10167,7 @@ func (l *Libvirt) DomainMigrateSetMaxSpeed(Dom Domain, Bandwidth uint64, Flags u
 }
 
 // StorageVolUpload is the go wrapper for REMOTE_PROC_STORAGE_VOL_UPLOAD.
-func (l *Libvirt) StorageVolUpload(Vol StorageVol, outStream io.Reader, Offset uint64, Length uint64, Flags StorageVolUploadFlags) (err error) {
+func (l *Libvirt) StorageVolUpload(Vol StorageVol, outStream io.Reader, Offset uint64, Length uint64, Flags uint32) (err error) {
 	var buf []byte
 
 	args := StorageVolUploadArgs {
@@ -10184,7 +10192,7 @@ func (l *Libvirt) StorageVolUpload(Vol StorageVol, outStream io.Reader, Offset u
 }
 
 // StorageVolDownload is the go wrapper for REMOTE_PROC_STORAGE_VOL_DOWNLOAD.
-func (l *Libvirt) StorageVolDownload(Vol StorageVol, inStream io.Writer, Offset uint64, Length uint64, Flags StorageVolDownloadFlags) (err error) {
+func (l *Libvirt) StorageVolDownload(Vol StorageVol, inStream io.Writer, Offset uint64, Length uint64, Flags uint32) (err error) {
 	var buf []byte
 
 	args := StorageVolDownloadArgs {
@@ -15496,6 +15504,31 @@ func (l *Libvirt) ConnectListAllNwfilterBindings(NeedResults int32, Flags uint32
 	}
 	// Ret: uint32
 	_, err = dec.Decode(&rRet)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+// DomainSetIothreadParams is the go wrapper for REMOTE_PROC_DOMAIN_SET_IOTHREAD_PARAMS.
+func (l *Libvirt) DomainSetIothreadParams(Dom Domain, IothreadID uint32, Params []TypedParam, Flags uint32) (err error) {
+	var buf []byte
+
+	args := DomainSetIothreadParamsArgs {
+		Dom: Dom,
+		IothreadID: IothreadID,
+		Params: Params,
+		Flags: Flags,
+	}
+
+	buf, err = encode(&args)
+	if err != nil {
+		return
+	}
+
+
+	_, err = l.requestStream(402, constants.Program, buf, nil, nil)
 	if err != nil {
 		return
 	}
