@@ -136,6 +136,16 @@ func IsNotFound(err error) bool {
 // listen processes incoming data and routes
 // responses to their respective callback handler.
 func (l *Libvirt) listen() {
+	defer func() {
+		recover()
+	}()
+	// Unblock any clients that are blocked on a response
+	// since we know they will never receive a response
+	// on this connection.
+	defer func() {
+		l.deregisterAll()
+	}()
+
 	for {
 		// response packet length
 		length, err := pktlen(l.r)
@@ -444,7 +454,10 @@ func (l *Libvirt) sendPacket(serial uint32, proc uint32, program uint32, payload
 }
 
 func (l *Libvirt) getResponse(c chan response) (response, error) {
-	resp := <-c
+	resp, ok := <-c
+	if !ok {
+		return resp, errors.New("connection closed")
+	}
 	if resp.Status == StatusError {
 		return resp, decodeError(resp.Payload)
 	}

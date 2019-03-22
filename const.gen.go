@@ -1759,10 +1759,10 @@ const (
 	errError   errorLevel = 2
 )
 
-// errorDomain as declared in libvirt/virterror.h:138
+// errorDomain as declared in libvirt/virterror.h:139
 type errorDomain int32
 
-// errorDomain enumeration from libvirt/virterror.h:138
+// errorDomain enumeration from libvirt/virterror.h:139
 const (
 	fromNone           errorDomain = iota
 	fromXen            errorDomain = 1
@@ -1832,12 +1832,13 @@ const (
 	fromPerf           errorDomain = 65
 	fromLibssh         errorDomain = 66
 	fromResctrl        errorDomain = 67
+	fromFirewalld      errorDomain = 68
 )
 
-// errorNumber as declared in libvirt/virterror.h:329
+// errorNumber as declared in libvirt/virterror.h:330
 type errorNumber int32
 
-// errorNumber enumeration from libvirt/virterror.h:329
+// errorNumber enumeration from libvirt/virterror.h:330
 const (
 	errOk                     errorNumber = iota
 	errInternalError          errorNumber = 1
